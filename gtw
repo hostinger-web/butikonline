@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Butik Online</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Existing styles */
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f6ddea;
+            color: #000000;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Cart Section Styles */
+        .cart-container {
+            width: 80%;
+            margin-top: 20px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .cart-container h2 {
+            margin-bottom: 20px;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .cart-item p {
+            margin: 0;
+        }
+
+        .cart-total {
+            margin-top: 20px;
+            font-weight: bold;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Header Section -->
+<header>
+    <div class="header-logo">
+        <img src="logo.png" alt="Logo Butik" class="logo">
+        <h1>CHOLE BOUTIQUE</h1>
+    </div>
+
+    <nav>
+        <a href="#">Beranda</a>
+        <a href="javascript:void(0)" onclick="scrollToContact()">Contact Person</a>
+        <a href="javascript:void(0)" onclick="buyerLogin()">Login Pembeli</a>
+        <a href="javascript:void(0)" onclick="viewCart()">Keranjang Belanja</a> <!-- Link to view cart -->
+    </nav>
+</header>
+
+<!-- Main Content Section -->
+<div class="content">
+    <div class="item-container">
+        <div class="item" onclick="showSubcategories('mini_dress')">
+            <p>Mini Dress</p>
+        </div>
+        <div class="item" onclick="showSubcategories('long_dress')">
+            <p>Long Dress</p>
+        </div>
+        <div class="item" onclick="showSubcategories('heels')">
+            <p>Heels</p>
+        </div>
+    </div>
+
+    <!-- Subcategories (same as previous structure) -->
+
+    <div id="mini_dressSubcategories" class="subcategory-container">
+        <!-- Mini Dress items -->
+    </div>
+
+    <div id="long_dressSubcategories" class="subcategory-container">
+        <!-- Long Dress items -->
+    </div>
+
+    <div id="heelsSubcategories" class="subcategory-container">
+        <!-- Heels items -->
+    </div>
+
+</div>
+
+<!-- Cart Section -->
+<div id="cartContainer" class="cart-container" style="display: none;">
+    <h2>Keranjang Belanja</h2>
+    <div id="cartItemsList"></div>
+    <div class="cart-total" id="cartTotal">Total: Rp0</div>
+    <button onclick="checkout()">Checkout</button>
+</div>
+
+<script>
+// Existing Functions
+
+function buyerLogin() {
+    const buyerName = prompt('Masukkan nama Anda:');
+    if (buyerName) {
+        alert('Selamat datang, ' + buyerName);
+        sessionStorage.setItem('buyerName', buyerName);
+    } else {
+        alert('Silakan masukkan nama Anda');
+    }
+}
+
+function scrollToContact() {
+    const contactSection = document.getElementById('contactPerson');
+    contactSection.scrollIntoView({ behavior: 'smooth' });
+}
+
+function showSubcategories(category) {
+    const subcategoryContainers = document.querySelectorAll('.subcategory-container');
+    subcategoryContainers.forEach(container => container.style.display = 'none');
+    document.getElementById(category + 'Subcategories').style.display = 'block';
+}
+
+function showColorPicker(itemName, price) {
+    const colorModal = document.getElementById('colorModal');
+    const modalBackground = document.getElementById('modalBackground');
+    colorModal.style.display = 'block';
+    modalBackground.style.display = 'block';
+    colorModal.dataset.itemName = itemName;
+    colorModal.dataset.price = price;
+}
+
+function closeColorModal() {
+    const colorModal = document.getElementById('colorModal');
+    const modalBackground = document.getElementById('modalBackground');
+    colorModal.style.display = 'none';
+    modalBackground.style.display = 'none';
+}
+
+function selectColor(color) {
+    const colorModal = document.getElementById('colorModal');
+    const itemName = colorModal.dataset.itemName;
+    const price = parseFloat(colorModal.dataset.price);
+
+    const selectedItem = {
+        name: itemName,
+        color: color,
+        price: price,
+        quantity: 1
+    };
+
+    let selectedItems = JSON.parse(sessionStorage.getItem('selectedItems')) || [];
+
+    const existingItemIndex = selectedItems.findIndex(item => item.name === itemName && item.color === color);
+    if (existingItemIndex !== -1) {
+        selectedItems[existingItemIndex].quantity += 1;
+    } else {
+        selectedItems.push(selectedItem);
+    }
+
+    sessionStorage.setItem('selectedItems', JSON.stringify(selectedItems));
+    closeColorModal();
+    updateCart(); // Update the cart display
+}
+
+function updateCart() {
+    const cartItemsList = document.getElementById('cartItemsList');
+    const cartTotal = document.getElementById('cartTotal');
+    const selectedItems = JSON.parse(sessionStorage.getItem('selectedItems')) || [];
+
+    let total = 0;
+    cartItemsList.innerHTML = ''; // Clear previous items
+
+    selectedItems.forEach(item => {
+        const cartItem = document.createElement('div');
+        cartItem.classList.add('cart-item');
+        cartItem.innerHTML = `
+            <p>${item.name} (${item.color}) x${item.quantity} - Rp${item.price * item.quantity}</p>
+        `;
+        cartItemsList.appendChild(cartItem);
+        total += item.price * item.quantity;
+    });
+
+    cartTotal.innerText = 'Total: Rp' + total;
+}
+
+function viewCart() {
+    const cartContainer = document.getElementById('cartContainer');
+    cartContainer.style.display = 'block'; // Show cart
+    updateCart(); // Update cart contents
+}
+
+function checkout() {
+    alert('Melanjutkan ke halaman checkout...');
+    // Redirect to checkout page (if any)
+}
+</script>
+
+</body>
+</html>

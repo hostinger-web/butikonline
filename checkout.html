@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Checkout - Chole Boutique</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f6ddea;
+            color: #000000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 50px;
+            position: relative;
+        }
+        .close-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: #360929;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .close-button:hover {
+            background-color: #560f3d;
+        }
+        .checkout-container {
+            width: 80%;
+            max-width: 600px;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: left;
+        }
+        .checkout-header {
+            text-align: center;
+        }
+        .checkout-details, .size-request {
+            margin-top: 20px;
+        }
+        .checkout-details p, .size-request label {
+            margin: 8px 0;
+        }
+        .size-request label {
+            display: block;
+        }
+        .print-button {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .print-button button {
+            padding: 10px 20px;
+            background-color: #360929;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .print-button button:hover {
+            background-color: #560f3d;
+        }
+        .size-select-container, .size-request-container {
+            display: none;
+            margin-top: 15px;
+        }
+        .size-request-container input,
+        .size-select-container select {
+            width: 100%;
+            padding: 8px;
+            margin: 8px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <button class="close-button" onclick="closePage()">Kembali</button>
+
+    <div class="checkout-container">
+        <div class="checkout-header">
+            <h1>Checkout</h1>
+            <h2>Chole Boutique</h2>
+        </div>
+        
+        <div class="checkout-details">
+            <p><strong>Nama Pembeli:</strong> <span id="buyerName"></span></p>
+            <p><strong>Metode Pembayaran:</strong></p>
+            <select id="paymentSelect">
+                <option value="Transfer Bank">Transfer Bank</option>
+                <option value="COD">COD (Cash on Delivery)</option>
+                <option value="E-Wallet">E-Wallet</option>
+                <option value="Kartu Kredit">Kartu Kredit</option>
+            </select>
+
+            <p><strong>Tanggal Checkout:</strong> <span id="checkoutDate"></span></p>
+            <p><strong>Waktu Checkout:</strong> <span id="checkoutTime"></span></p>
+            <p><strong>Daftar Barang:</strong></p>
+            <ul id="itemList"></ul>
+            <p><strong>Total Harga:</strong> Rp<span id="totalPrice"></span></p>
+        </div>
+
+        <div class="size-request">
+            <h3>Ukuran</h3>
+            <label for="sizeOption">Pilih Jenis Ukuran:</label>
+            <select id="sizeOption" onchange="toggleSizeOption()">
+                <option value="manual">Request Ukuran (Manual)</option>
+                <option value="predefined">Ukuran Langsung (S, M, L, XL)</option>
+            </select>
+        </div>
+
+        <!-- Form for manual size request -->
+        <div class="size-request-container" id="sizeRequestContainer">
+            <label for="bustSize">Lingkar Dada (cm):</label>
+            <input type="number" id="bustSize" placeholder="Contoh: 90" min="0">
+            
+            <label for="waistSize">Lingkar Pinggang (cm):</label>
+            <input type="number" id="waistSize" placeholder="Contoh: 70" min="0">
+            
+            <label for="bahuSize">Lebar Bahu (cm):</label>
+            <input type="number" id="bahuSize" placeholder="Contoh: 80" min="0">
+
+            <label for="lengthSize">Panjang Dress (cm):</label>
+            <input type="number" id="lengthSize" placeholder="Contoh: 100" min="0">
+        </div>
+
+        <!-- Form for predefined size selection -->
+        <div class="size-select-container" id="sizeSelectContainer">
+            <label for="predefinedSize">Pilih Ukuran:</label>
+            <select id="predefinedSize">
+                <option value="S">S</option>
+                <option value="M">M</option>
+                <option value="L">L</option>
+                <option value="XL">XL</option>
+                <option value="XXL">XXL</option>
+            </select>
+        </div>
+
+        <div class="print-button">
+            <button onclick="handleCheckout()">Checkout</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const buyerName = sessionStorage.getItem('buyerName') || 'Pembeli';
+            const selectedItems = JSON.parse(sessionStorage.getItem('selectedItems')) || [];
+            const today = new Date();
+            const checkoutDate = today.toLocaleDateString();
+            const checkoutTime = today.toLocaleTimeString();
+
+            document.getElementById('buyerName').textContent = buyerName;
+            document.getElementById('checkoutDate').textContent = checkoutDate;
+            document.getElementById('checkoutTime').textContent = checkoutTime;
+
+            const paymentSelect = document.getElementById('paymentSelect');
+            paymentSelect.addEventListener('change', function () {
+                document.getElementById('paymentMethod').textContent = paymentSelect.value;
+            });
+
+            const itemList = document.getElementById('itemList');
+            let totalPrice = 0;
+            selectedItems.forEach(item => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${item.name} - Warna: ${item.color} - Rp${item.price}`;
+                itemList.appendChild(listItem);
+                totalPrice += item.price;
+            });
+
+            document.getElementById('totalPrice').textContent = totalPrice.toLocaleString();
+
+            // Automatically display manual size form if selected by default
+            const sizeOption = document.getElementById('sizeOption').value;
+            toggleSizeOption(sizeOption); // Ensure correct form is displayed on load
+        });
+
+        function toggleSizeOption(sizeOption = '') {
+            const selectedSizeOption = sizeOption || document.getElementById('sizeOption').value;
+            const sizeRequestContainer = document.getElementById('sizeRequestContainer');
+            const sizeSelectContainer = document.getElementById('sizeSelectContainer');
+
+            if (selectedSizeOption === 'manual') {
+                sizeRequestContainer.style.display = 'block';
+                sizeSelectContainer.style.display = 'none';
+            } else {
+                sizeRequestContainer.style.display = 'none';
+                sizeSelectContainer.style.display = 'block';
+            }
+        }
+
+        function handleCheckout() {
+            const sizeOption = document.getElementById('sizeOption').value;
+            let sizeValid = false;
+
+            if (sizeOption === 'manual') {
+                const bustSize = document.getElementById('bustSize').value;
+                const waistSize = document.getElementById('waistSize').value;
+                const bahuSize = document.getElementById('bahuSize').value;
+                const lengthSize = document.getElementById('lengthSize').value;
+
+                if (!bustSize || !waistSize || !bahuSize || !lengthSize) {
+                    alert('Silakan isi semua ukuran yang diminta.');
+                    return;
+                }
+
+                sizeValid = true;  // Manual size is valid if all fields are filled
+            } else if (sizeOption === 'predefined') {
+                const predefinedSize = document.getElementById('predefinedSize').value;
+                if (!predefinedSize) {
+                    alert('Silakan pilih ukuran dari pilihan yang tersedia.');
+                    return;
+                }
+
+                sizeValid = true;  // Predefined size is valid if an option is selected
+            }
+
+            if (sizeValid) {
+                    window.print();
+                    sessionStorage.removeItem('selectedItems');
+                    const confirmReturn = confirm("Apakah Anda ingin kembali ke halaman utama?");
+                    if (confirmReturn) {
+                        window.location.href = 'index.html';
+                    }
+                }
+            }
+
+        function closePage() {
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

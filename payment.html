@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Form Pembayaran - Butik Online</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body { font-family: 'Roboto', sans-serif; background-color: #f5f5f5; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .payment-container { background-color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); width: 100%; max-width: 400px; }
+        h1 { color: #2c3e50; }
+        input, button { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; }
+        button { background-color: #2980b9; color: white; border: none; cursor: pointer; transition: background-color 0.3s; }
+        button:hover { background-color: #3498db; }
+    </style>
+</head>
+<body>
+    <div class="payment-container">
+        <h1>Form Pembayaran</h1>
+        <form onsubmit="submitPaymentForm(event)">
+            <label for="paymentMethod">Metode Pembayaran:</label>
+            <select id="paymentMethod" required>
+                <option value="Kartu Kredit">Kartu Kredit</option>
+                <option value="Transfer Bank">Transfer Bank</option>
+                <option value="Cash On Delivery">Cash On Delivery</option>
+            </select>
+            <button type="submit">Lanjutkan ke Checkout</button>
+        </form>
+    </div>
+
+    <script>
+        function submitPaymentForm(event) {
+            event.preventDefault();
+
+            const paymentMethod = document.getElementById('paymentMethod').value;
+            sessionStorage.setItem('paymentMethod', paymentMethod);
+            window.location.href = 'checkout.html';
+        }
+    </script>
+</body>
+</html>

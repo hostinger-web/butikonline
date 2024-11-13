@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header>
+            <h1>Dashboard Admin</h1>
+            <p>Pengelolaan Akun Pembeli</p>
+            <button class="logout-button" onclick="logout()">Logout</button>
+        </header>
+        
+        <div class="card-container">
+            <div class="card">
+                <h2>Jumlah Pembeli</h2>
+                <p id="buyerCount">50</p>
+            </div>
+            <div class="card">
+                <h2>Akun Pembeli Terdaftar</h2>
+                <div id="buyerAccounts"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="admin_dashboard.js"></script>
+</body>
+</html>
